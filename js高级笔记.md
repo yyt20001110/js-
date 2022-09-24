@@ -466,6 +466,30 @@ console.log(Object.keys(obj))
 
 ### 2.Array
 
+#### Eg1小练习
+
+```js
+ const spec = { size: '40cm*40cm', color: '黑色' }
+        // const pj = Object.values(spec).join('/')
+        // document.documentElement.innerHTML = pj
+        document.documentElement.innerHTML = Object.values(spec).join('/')
+```
+
+#### Eg2小练习
+
+```js
+const gift = '50g茶叶,清洗球'
+        //1.把字符串以，分隔符号，转为数组
+        const arr = gift.split(',')
+        console.log(arr)
+        //2.根据数组里面的元素 ，利用map转为[`<span></span>`,`<span></span>`] 这样数组
+        const resArr = arr.map(el => `<span>【赠品】${el}</span><br>`)
+        //3.将这个得到的数组再转换为字符串，放到div里面
+        document.querySelector('div').innerHTML = resArr.join('')
+```
+
+
+
 #### 2.1 forEach
 
 ```js
@@ -495,6 +519,16 @@ const arr = [1, 2, 3, 4, 5];
 
 #### 2.3 map
 
+```js
+const array1 = [1, 4, 9, 16];
+
+// pass a function to map
+const map1 = array1.map(x => x * 2);
+
+console.log(map1);
+// expected output: Array [2, 8, 18, 32]
+```
+
 
 
 #### 2.4 reduce
@@ -514,6 +548,234 @@ const arr = [1, 2, 3, 4, 5];
    const resArr = arr.reduce((pre,cur) => pre + cur , 10)
    console.log(resArr)
 ```
+
+##### 2.4.1 涨薪小案例
+
+```js
+  const arr = [{
+        name: '张三',
+        salary: 10000
+        }, {
+        name: '李四',
+        salary: 10000
+        }, {
+        name: '王五',
+        salary: 20000
+        }]
+    
+    // const money = arr.reduce(function(prev,cur){
+    //     return prev + cur.salary*1.3
+    // },0)
+    const money =arr.reduce((prev,cur) => prev + cur.salary * 1.3,0)
+    console.log(money)
+```
+
+
+
+#### 2.5 find
+
+1.语法：arr.find(cbfn)
+
+2.作用：返回数组中满足条件的第一个数组元素，返回undefined
+
+3.参数 cbFn  ===>这个函数中，一般写上return
+
+​      cbFn
+
+​      第一个参数：item 当前元素
+
+​      第二个参数: index 当前元素的索引
+
+4.数组中第一个满足条件的元素 / undefined
+
+5.注意：返回的是第一个满足条件的
+
+```js
+const arr = ['red','green','blue']
+
+        const res = arr.find(function(item){
+            return item === 'blue'
+        })
+        const resArrow = arr.find(el => el==='blue')
+        console.log(res,resArrow)
+
+        //实际使用，搜索查找
+        //需求：找到数组中名字为小米的那个元素（对象）？
+        const arrTemp = [{name:'小米',price:1999},{name:'华为',price:6999}]
+        const mi = arrTemp.find(item => item.name === '小米')
+        console.log(mi)
+```
+
+---
+
+#### 2.6 findindex
+
+1.语法:arr.findIndex(cbFn)
+
+2.作用：查找数组中满足条件的第一个元素的索引号，如果没有，返回-1
+
+3.参数：cbFn
+
+cbFn的参数
+
+第一个参数：item 当前元素      第二个参数：index 当前元素的索引号（可选）
+
+返回值：索引号 / -1
+
+```js
+ const arr = [{name:'小米', price:1999},{name:'华为', price:5999},{name:'iPhone', price:8999}]
+
+        const index = arr.findIndex(function(item){
+            return item.name === 'iPhone'
+        })
+        const i = arr.findIndex(i => i.name==='iPhone')
+        console.log(index,i)
+```
+
+
+
+---
+
+#### 2.7 every
+
+1.语法:arr.every(cbFn)
+
+2.作用：检测数组内的所有元素是否都满足指定的条件，如果都满足，返回true / 否则 false
+
+3.参数：cbFn  ===> return
+
+​    cbFn的参数
+
+​    第一个参数：item 当前元素
+
+​    第二个参数：index 当前元素的索引号（可选）
+
+4.返回值：boolean ==> true / false
+
+```js
+        const arr = [10,20,30]
+        const res = arr.every(el => el >= 10)
+        const res1 = arr.every(el => el >= 20)  //第一个10不满足
+        console.log(res,res1)
+```
+
+---
+
+#### 2.8 some
+
+arr.some(cbFn) : 检测数组中的元素是否满足指定的条件，只要有一个满足，返回true / 否则 false
+
+```js
+const arr = [10,20,30]
+        const resSome = arr.some(el => el >= 40)
+        console.log(resSome)
+```
+
+#### 2.9 includes
+
+arr.include() : 判断数组中是否有这个元素，有返回true / 否则 false
+
+```js
+const arr = [10,20,30]
+        const resincludes = arr.includes(10)
+        console.log(resincludes)
+```
+
+
+
+---
+
+### 3.String
+
+---
+
+#### 3.1 split
+
+str.split(分隔符作用：使用指定的分隔符，将字符串分隔，得到一个字符串数组
+
+```js
+const str = 'The quick brown fox jumps over the lazy dog.';
+        const words = str.split(' ');
+        console.log(words)
+
+        const str1 = '2022-9-24'
+        const arr = str1.split('-')
+        console.log(arr)
+```
+
+---
+
+#### 3.2 substring
+
+1.语法：str.substring(indexStart[,indexEnd])
+
+2.作用：从字符串中截取某一段出来
+
+3.注意：如果省略indexEnd，取到最后
+
+4.前闭后开区间[start,end) end的索引号 不包含在生成的字符串内
+
+```js
+ const str3 = '大家喜欢吃冰激凌吗 ？'
+        console.log(str3.substring(0))
+        console.log(str3.substring(2))
+        console.log(str3.substring(4))
+        console.log(str3.substring(2,4))
+```
+
+#### 3.3 startsWith
+
+1.str.startsWith(searchString[, position])
+
+2.作用： 判断是否以某个字符字串开头
+
+3.searchString  : 要搜索的字符串
+
+4.position    : 在str中开始搜索的位置 默认为0 （可选）
+
+5.返回值： true / false
+
+#### 3.4 includes
+
+```js
+  //判断一个字符串中是否包含另一个字符串  true / false
+        const str = "mother fuck"
+        console.log(str.includes('fuck'))  //true
+        console.log(str.includes('f'))     //true
+        console.log(str.includes('p'))     //false
+
+        //includes(substr[,pos]) 也可以有pos位置
+        console.log(str.includes('fuck',6))//true
+```
+
+
+
+---
+
+### 4.Number
+
+---
+
+#### 4.1 toFixed
+
+num.toFixed()
+
+设置小数的保留位数
+
+```js
+const num = 10.923
+        const res = num.toFixed(2)
+        console.log(res)
+        console.log(typeof res)
+
+        //如果不传参数,四舍五入为整数形式的字符串
+        const res2 = num.toFixed()
+        console.log(res2)
+```
+
+---
+
+
 
 ## 三、原型的五条规则
 
@@ -554,3 +816,4 @@ const arr = [1, 2, 3, 4, 5];
    ```
 
 5. 当试图得到一个对象的某个属性的时，如果这个对象本身没有这个属性，那么会去它的__proto__中寻找
+
