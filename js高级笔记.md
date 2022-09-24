@@ -203,7 +203,7 @@ const arr = [1,2,3,4,5]
         const obj = {
             name:1
         }
-        
+
         function fn(a,b){
             console.log('fn执行',this,a,b)
         }
