@@ -1092,7 +1092,7 @@ const zxy = new Star('张学友', 19)
 >
 > 原型方法中的this ，指向的也是new出来的实例
 
-
+![06168fc392ac20525347e9dc1eb086d](../../Pictures/06168fc392ac20525347e9dc1eb086d.png)
 
 ### 1. prototype  
 
@@ -1243,7 +1243,7 @@ console.log(ldh.__proto__ === Star.prototype)
         //fn --->Function.prototype ---> Object.prototype --->null
 ```
 
-#### 5.instanceof
+### 5.instanceof
 
 ```js
   // instanceof  运算符  instance 实例 of谁的
