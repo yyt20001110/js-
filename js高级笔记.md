@@ -985,3 +985,286 @@ flex-direction`属性和`flex-wrap`属性的简写形式，默认值为`row nowr
 }
 ```
 
+---
+
+# js高级day3
+
+> 深入面向对象
+
+## 一、编程思想
+
+### 1.面向过程
+
+面向过程就是分析出解决问题所需要的步骤，然后用函数一步一步的实现，使用的时候再一个一个的依次调用就可以了。
+
+简述：面向过程，就是按照我们分析好了的步骤，按照步骤解决问题
+
+### 2.面向对象
+
+面向对象是把事务分解成一个个对象，然后由对象之间分工与合作。
+
+简述：面向对象是以对象功能来划分问题，而不是步骤。
+
+#### 2.1 封装性 
+
+#### 2.2 继承性
+
+#### 2.3 多态性
+
+---
+
+
+
+### 3.两者的优缺点
+
+#### 3.1 面向过程编程
+
+优点：性能比面向对象高，适合跟硬件联系很紧密的东西，例如单片机就采用的面向过程编程
+
+缺点：没有面向对象易维护、易服用、易扩展
+
+#### 3.2 面向对象编程
+
+优点：易维护、易服用、易扩展，由于面向对象有封装、继承、多态性的特性，可以设计出低耦合的系统，使系统更加灵活、更加易于维护
+
+缺点：性能比面向过程低
+
+---
+
+## 二、构造函数
+
+> 构造函数里面的this指向new出来的实例
+
+- 封装是面向对象思想中比较重要的一部分，js面向对象可以通过构造函数实现的封装。
+- 同样的将变量和函数组合到了一起并能通过this实现数据的共享，所不同的是借助构造函数创建出来的实例对象之间是彼此不影响的
+
+1. 构造函数体现了面向对象的封装特性
+2. 构造函数创建的实例对象彼此独立，互不影响
+
+### 1.内存浪费版本
+
+```js
+内存 function Star(uname, age) {
+this.uname = uname
+this.age = age
+this.sing = function() {
+console.log('我会唱歌')
+					}
+} 
+const ldh = new Star('刘德华', 18)
+const zxy = new Star('张学友', 19)
+```
+
+==方法虽好，但是会造成内存浪费==
+
+### 2.挂载原型对象(省内存版)
+
+```js
+ // 1.公共的属性写到构造函数里面
+        function Star(name,age){
+            this.name = name
+            this.age = age
+            // this.sing = function(){
+            //     console.log('唱歌')
+            // }
+        }
+
+        //2.公共的方法写到原型对象上，节约了内存空间
+        Star.prototype.sing = function(){
+            console.log('唱歌')
+        }
+        
+        const ldh = new Star('刘德华',18)
+        const zjl = new Star('周杰伦',19)
+        const ll = new Star('练练',15)
+        ldh.sing()
+        zjl.sing()
+        console.log(ldh.sing === zjl.sing)  //true
+```
+
+
+
+## 三、 原型 （个人理解）
+
+> 原型:原始的模型，原始祖先
+>
+> JS里面：原型就是一个对象，也叫做原型对象
+>
+> 原型方法中的this ，指向的也是new出来的实例
+
+
+
+### 1. prototype  
+
+相当于指针，从构造函数指向构造函数的原型对象
+
+(构造函数).prototype--->(构造函数的原型对象) 
+
+```js
+//所有通过构造函数创建的实例，都共享原型对象上的属性和方法
+        function Star(name,age){
+            this.name = name
+            this.age = age
+        }
+```
+
+```js
+//公共的方法写到原型对象上
+        Star.prototype.sing = function(){
+            console.log('唱歌')
+        }
+```
+
+```js
+//原型上也可以添加属性
+        Star.prototype.cheer = 'Every step count' //每天进步一点点
+```
+
+```js
+const ldh = new Star('刘德华',18)
+        const zxy = new Star('张学友',19)
+        console.log(ldh.__proto__)
+        console.log(zxy) 
+```
+
+---
+
+
+
+### 2. constructor
+
+原型对象的默认属性constructor(存在于原型对象上)，指向这个构造函数本身
+
+```js
+console.log(Person.prototype.constructor === Person)
+//true
+```
+
+案例
+
+```js
+ function Star(name){
+            this.name = name
+        }
+        const ldh = new Star('刘德华')
+        console.log(ldh)
+```
+
+```js
+constructor在哪里？
+        // ==>1. ldh.__proto__ ==>找到原型
+        // ==>2. Star.prototyoe ==>找到原型
+```
+
+
+
+### 3.    `__proto__`
+
+所有的对象都有`__proto__`(隐式原型)，属性值是一个对象（原型对象）
+
+所有的对象__proto__(隐式原型)指向它的构造函数的prototype(显示原型)
+
+因为函数也是属于对象的，所以函数也有__proto__属性
+
+```js
+console.log(ldh.__proto__ === Star.prototype)
+```
+
+`__proto__`作用
+
+它相当于是一个桥梁 实例通过 `__proto__` 就可以访问到它的原型对象
+
+```js
+//1.实例对象.__proto__ === 构造函数.prototype
+        //2.构造函数.prototype.constructor === 构造函数
+        Animal.prototype.constructor === Animal
+        cat.__proto__.constructor === Animal
+        //3.返回指定实例（对象）的原型（对象）
+        //Object.getPrototypeOf(obj)
+        console.log(Animal.prototype)
+        console.log(cat.__proto__)
+        console.log(Object.getPrototypeOf(cat))
+
+        Object.getPrototypeOf(cat) === cat.__proto__   //true
+        Object.getPrototypeOf(cat) === Animal.prototype  //true
+```
+
+### 4.原型链
+
+```js
+ //原型链:
+        //1.Person.prototype也是一个对象，所以，它也有一个__proto__属性 （规则2）
+        // 既然Person.prototype 它（person的原型）是一个对象（实例），那么，它的构造函数是谁呢？
+
+        //Person.prototype 这个对象的构造函数 ===> Object
+        //Person.prototype = new Object()
+        //实例.__protp__ === 构造函数.prototype (构造函数)
+        Person.prototype.__proto__ === Object.prototype
+
+        //2.Object.prototype 得到的是什么 原型，谁的原型 Object构造函数的原型
+        Person.prototype.cunstructor === Person
+        //2.1  Object.prototype 原型，原型对象上默认有一个constructor，指向构造函数Object
+        //2.2 Object这个构造函数
+        // Object.prototype ==> 访问到它的原型
+        // 2.3 
+        // Person.prototype.__proto__ ==> 访问到的还是object的原型
+       
+
+       // 3. Object是构造函数，Object.prototype ==> 原型
+        // Object.prototype ==> 原型对象，也是对象 
+        // 规则2 ：所以Object.prototype.__proto__ 属性
+        // 但是 ==> Object.prototype.__proto__ 指向 null
+        Object.prototype.__proto__ === null
+
+        // 正常原型链都会终止于Object的原型对象
+        // Object.prototype ==> 它是原型
+        // Object.prototype.__proto__ 访问它 Object.prototype的原型， null
+        // Object原型的原型是null
+```
+
+```js
+//原型链
+        //每个对象通过__proto__属性都能访问到它的原型，原型也有它的原型
+        //当访问一个对象的属性和方法时，先在自身中寻找
+        //如果没有，就会沿着__proto__这条链，像上查找，一直找到最顶层Object.prototype为止
+
+        Object.prototype.__proto__ === null
+
+
+        //数组的原型链
+        const arr = [1,2,3]  //new Array()
+        //数组也是一个对象，它有Array这个构造函数创建出来的
+        console.log(arr.__proto__ === Array.prototype)
+        //arr ---> Arrat.prototype ---> Object.prototype ---> null
+
+        //函数的原型链
+        const fn = function(){} //new Function()
+        //函数也是一个对象，它由Function构造函数创建
+        //fn --->Function.prototype ---> Object.prototype --->null
+```
+
+#### 5.instanceof
+
+```js
+  // instanceof  运算符  instance 实例 of谁的
+
+        // 语法： A instanceof B
+        //       实例 instanceof 构造函数
+        // 作用： 用于检测构造函数的 prototype 属性是否出现在某个实例对象的原型链上
+
+        function C(){}
+        const o = new C()
+        console.log(o.__proto__ === C.prototype)
+
+        console.log(o instanceof C)
+        console.log(o instanceof Object)
+
+        const arr = [1, 2, 3]
+        console.log(arr instanceof Array)
+        console.log(arr instanceof Object)
+        // console.log(arr instanceof null) // Error 
+        console.log(Array instanceof Object)
+
+        console.log(C instanceof Function)
+```
+
