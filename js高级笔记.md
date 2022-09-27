@@ -1268,3 +1268,612 @@ console.log(ldh.__proto__ === Star.prototype)
         console.log(C instanceof Function)
 ```
 
+---
+
+# js高级day4
+
+## 一、原型
+
+### 1.1 什么是原型
+
+原型就是一个对象
+
+  1.每个函数都有prototype属性 它的值是一个指针 指向的就是原型对象
+
+  2.通过构造函数生成的实例都有`__proto__` 属性 也指向原型对象
+
+  3.原型上默认有有个属性constructor属性 指回构造函数
+
+```js
+function A(){}
+    const a = new A()
+    a.__proto__ === A.prototype
+
+    // 原型的结构
+    A.prototype = {
+      constructor : A,
+    // ...其他其他原型属性和方法
+    }
+    a.__proto__ = {
+      constructor : A,
+    // ...其他其他原型属性和方法
+    }
+```
+
+原型的作用
+
+所有通过构造函数创建的实例 都共享原型上的属性和方法
+
+### 1.2原型链继承
+
+```js
+//类：抽象的，一个大类，泛指 ===> 构造函数可以理解为一个类
+        //继承：子类拥有（继承了）父类的属性和方法
+
+        //实现继承的方式
+        //============================
+        // 1.原型链继承  ===>今天学的
+        // 2. 借用构造函数（经典继承）
+        // 3. 组合继承
+        // 4. 原型式继承
+        // 5. 寄生式继承
+        // 6. 寄生式组合继承 ==> 最完美的没有缺点
+        // =====================================================
+
+    	// ES6.
+        // 7. extends 继承 ==> 语法糖 寄生式组合继承
+```
+
+```js
+// 继承: 子类拥有父类的属性和方法
+    // 父类
+    function Parent(name){
+      this.name = name || '父类'
+      this.arr = [1, 2, 3]
+    }
+    Parent.prototype.sayHi = function(){
+      console.log('Hi`');
+    }
+    // 子类
+    function Child(hobby){
+      this.hobby = hobby
+    }
+    // 核心: 让子类的原型 等于 父类构造函数的实例
+    Child.prototype = new Parent()
+
+    const boy1 = new Child('sing')
+    const boy2 = new Child('dance')
+    console.log(boy1)
+    console.log(boy2)
+    boy1.sayHi()
+    boy2.sayHi()
+    console.log(boy1.sayHi === boy2.sayHi)
+
+    // 1. 优点 方法复用,共享
+    // 由于方法定义在父类的原型上,实例共享了父类原型上的方法
+
+
+    // 2. 缺点
+    // 2.1 子类在实例化的时候 不能给父类构造函数传参
+    console.log(boy1.name)
+    console.log(boy2.name)
+    console.log(boy1.name === boy2.name)
+    // 2.2 子类实例共享了父类构造函数的属性和方法
+    // 如果父类里的属性值是引用类型(数组,对象等) 实例修改这个值后会相互影响
+    console.log(boy1.arr,boy2.arr)
+    boy1.arr.push(666)
+    console.log(boy2.arr)
+
+
+    // 注意1: 这里如果写boy1.那么 ,相当于给自己的实例添加一个name属性
+    boy1.name = 666
+    console.log(boy1.__proto__.name)
+    
+    console.log(boy1,boy2)
+
+    // 注意2: 我们希望这里应该返回的是child,可以修正
+    console.log(boy1.constructor) // Parent
+    Child.prototype.constructor = Child // 修正child里面的constructor属性
+```
+
+
+
+## 二、数据类型
+
+### 2.1 基本数据类型 (面试题)
+
+Number String  Boolean undefined null Symbol BigInt
+
+栈（Stack）基本类型：基本类型的值，存在栈里面
+
+```js
+ // 1. 基本数据类型不可以添加属性和方法
+    let str = '123'
+    str.a = '222'
+    str.max = function(){}
+    console.log(str);
+    console.log(str.a); // undefined
+    console.log(str.max); // undefined
+    // 2. 基本数据类型是按值访问的 也就是说 我们操作的是存储在变量中的实际值
+    let a = 1
+    let b = 2
+
+    a = 3
+    b = 4
+    a = b // 互不干扰
+    console.log(a,b)
+    // 基本类型: 赋值后的两个变量,互不干扰
+```
+
+
+
+### 2.2  引用类型 （面试题）
+
+Object ==> Function Array Date Math Error RegExp
+
+堆（Heap）引用类型： 引用类型的数据，栈里面存的是地址，指向堆里面的数据。
+
+```js
+// 3. 引用类型: 直接赋值,实际上是复制的地址 (指针)
+    let obj1 = {name: '刘德华',age:'18'}
+    let obj2 = obj1
+    obj1.name = '不能再迟到'
+    console.log(obj2)
+```
+
+## 三、检测数据类型
+
+### 3.1 typeof
+
+```js
+ // 1. typeof 判断一个变量是否是除了null以外的基本数据类型（原始类型）
+        // 基本类型
+        console.log(typeof 1);
+        console.log(typeof "");
+        console.log(typeof true);
+        console.log(typeof undefined);
+        console.log(typeof null); // object---有点儿特殊 Bug
+        console.log(typeof Symbol('id')) // symbol
+        console.log(typeof BigInt(9007199254740999)) // bigint
+        console.log(typeof 9007199254740999n)
+
+        // 2. typeof 总是返回一个字符串
+        console.log(typeof typeof 1) // string
+
+        // 3. typeof 不能区分数组
+        console.log(typeof [1, 2, 3]) // 'object'
+        console.log(typeof function(){}) // 'function'
+        console.log(typeof {}) // 'object'
+```
+
+
+
+### 3.2 instance of
+
+```js
+// 1. instanceof 可以用于引用类型的检测，对基本数据类型无效
+        console.log('1' instanceof String) 
+        console.log(1 instanceof Number)
+        console.log(true instanceof Boolean)
+        console.log(Symbol('id') instanceof Symbol)
+        console.log(9007199254740999n instanceof BigInt)
+        console.log(BigInt(9007199254740999) instanceof BigInt)
+
+        // 引用类型
+        // 用于检测构造函数的 prototype 属性是否出现在某个实例对象的原型链上
+        // ==> 用于检测左边的实例是不是构造函数创建的，或者说是不是属于祖先构造函数。
+        console.log([] instanceof Array)  // true
+        console.log(function () {} instanceof Function) // true
+        console.log({} instanceof Object)  // true
+        console.log([] instanceof Object) // true 祖先
+```
+
+### 3.3 Object.prototype.toString.call()
+
+```js
+ let num = 123
+        let str = '123'
+        let bool = true
+        let und = undefined
+        let nul = null
+        let symb = Symbol('id')
+        let big = 9007199254740999n
+
+        let arr = [1,2,3]
+        let obj = {}
+        let fn = function(){}
+        let date = new Date()   // [object Date]
+        let reg = /a/g          // [object RegExp]
+        let error = new Error() // [object Error]
+        // 前面的object小写, 后面的类型, 大写开头; 字符串
+        console.log(Object.prototype.toString.call(num)) // [object Number]
+        console.log(Object.prototype.toString.call(str))  // [object String]
+        console.log(Object.prototype.toString.call(bool)) // [object Boolean]
+        console.log(Object.prototype.toString.call(und)) // [object Undefined]
+        console.log(Object.prototype.toString.call(nul)) // [object Null]
+        console.log(Object.prototype.toString.call(symb)) // [object Symbol]
+        console.log(Object.prototype.toString.call(big)) // [object BigInt]
+
+        console.log(Object.prototype.toString.call(arr))  // [object Array]
+        console.log(Object.prototype.toString.call(obj))  // [object Object]
+        console.log(Object.prototype.toString.call(fn))   // [object Function]
+        console.log(Object.prototype.toString.call(date))   // [object Date]
+        console.log(Object.prototype.toString.call(reg))   // [object RegExp]
+        console.log(Object.prototype.toString.call(error))   // [object Error]
+
+        //封装一个函数checkType函数，检测数据类型
+        const tempArr = [num, str, bool, und, nul, symb, big, arr, obj, fn, date, reg, error]
+        function foo(tempArr){
+            tempArr.forEach(el => {
+              Object.prototype.toString.call(el)  
+            })
+        }
+        console.log(foo(tempArr))
+
+        //=============================
+        // 判断数组
+        // instanceof 
+        // Array.isArray
+        // Object.prototype.toString.call()
+```
+
+
+
+## 四、赋值
+
+什么是赋值？
+
+- 赋值是将某一数值或对象赋给某个变量的过程
+
+```js
+ let a = '莫听穿林打叶声，何妨吟啸且徐行' // 自行百度
+    let b = a 
+    console.log(b)
+
+    a = '贵有恒，何必三更起五更眠'
+    console.log(a, b)
+
+    // 引用类型
+    let obj1 = {
+        name: "JS",
+        book: {
+            title: "You Don't Know JS",
+            price: "169"
+        }
+    }
+    let obj2 = obj1
+    obj2.name = 'Hello World'
+    // console.log(obj1.name)
+    console.log(obj1, obj2)
+```
+
+## 五、拷贝
+
+### 5.1 浅拷贝
+
+浅拷贝：在堆内存中新开辟一个内存空间，创建一个新对象
+
+拷贝原对象的第一层基本数据类型的值和引用类型的地址
+
+第一层：最外面的一层，{}最近的一层
+
+```js
+    // 实现浅拷贝的方式
+    // 1. Object.assign() 
+    const b = Object.assign({}, obj1)
+    console.log(b)
+    b.name = 'hello world'
+    b.book.price = 666
+    console.log(obj1, b)
+
+    console.log(b.name === obj1.name) // false
+    console.log(b.book === obj1.book) // true
+    console.log(b.book.price === obj1.book.price) // true
+
+    // 2. 扩展运算符 Spread ...
+    let c = {
+        name: "JS",
+        book: {
+            title: "You Don't Know JS",
+            price: "169"
+        }
+    }
+    let d = {...c} 
+    // console.log(d)
+    d.name = 'hello world'
+    const e = 'JS'
+    const f = 'JS'
+    console.log(e === f) // 基本数据类型比较全等，是比较的值和类型
+    
+    console.log(c.name === d.name)
+    console.log(c.book === d.book)
+    c.book.price = 888
+    console.log(d.book.price)
+
+    // 3. Array.prototype.concat()
+    const arr1 = [1, 2, {user:'周杰伦'}]
+    const arr2 = arr1.concat()
+    arr2[0] = 666
+    arr2[2].user = '练练'
+    console.log(arr1, arr2)
+
+    // 4. Array.prototype.slice()
+    const arr3 = [1, 2, {user:'周杰伦'}]
+    const arr4 = arr3.slice()
+    arr4[0] = 888
+    arr4[2].user = '伟伟'
+    console.log(arr3, arr4)
+```
+
+
+
+### 5.2 深拷贝
+
+深拷贝:  在堆内存空中 开辟一个新的空间 存放新对象
+
+递归的拷贝原对象的所有属性和方法
+
+ 拷贝前后 两个对象,相互不影响
+
+ 递归拷贝: 一层一层,每一层都新建一个内存空间
+
+   ==深拷贝的实现方式 面试高频==
+
+1. ==JSON.parse(JSON.stringify(obj))==
+
+2. ==递归实现==
+
+3. ==使用一些js库 lodash==
+
+```js
+//浅拷贝：新旧对象，如果有引用类型，共享同一块内存空间，会相互影响
+  let a = {b:{c:{}}}
+  let a2 = {...a} //
+
+  //深拷贝：新旧对象，不会共享内存空间
+  let a3 = deepClone(a)
+  a3.b.c === a.b.c //false 不共享内存空间
+```
+
+
+
+## 六、递归
+
+ 递归：自己调用自己 ，有递，有归。
+
+递归爆栈(栈溢出) 栈 ==> 数据结构 有先入后出的特性,栈有深度 如果超出了 就会溢出报错
+
+```js
+let i = 1
+        function count(){
+            console.log(`这是第${i}次调用`)
+            i++
+            // if(i >= 100){
+            //     return
+            // }
+            count()
+        }
+        count()
+```
+
+
+
+## 七、指向
+
+### 7.1 基本概念
+
+ this 指向  ===>  指向 可以理解为 等于 代表谁
+
+ this在定义的时候不能确定, 只有执行调用的时候才能确定
+
+ 全局作用域中 / 普通函数中 / 定时器里面  this 指向 window
+
+```js
+ // 1.1 全局作用域
+        console.log(this)  // window
+
+        // 1.2 普通函数调用
+        function fn() {
+        console.log('大家吃早饭了嘛?')
+        console.log(this) // window
+        }
+        fn()
+
+        // 1.3 定时器里面
+        setTimeout(function(){
+        console.log(this)  // window
+        }, 1000)
+
+        // 2.1 方法调用中, 谁调用这个方法, this指向谁
+        const obj = {
+        name: '小平',
+        age: 18,
+        sayHi: function(){
+            console.log(this)
+        }
+        }
+        obj.sayHi()
+
+        // 2.2 事件注册的时候, this指向被绑定的元素
+        const btn = document.querySelector('button')
+        btn.addEventListener('click', function(e){
+        console.log(this) // 绑定事件的元素
+        console.log(e.target) // 触发事件的元素
+        console.log(e.currentTarget) // 同this, 绑定事件的元素
+        })
+
+        console.log('-------------------------')
+
+        // 3. 构造函数中, this 指向的是 构造函数的实例
+        function Foo(name, age) {
+        this.name = name 
+        this.age = age 
+        console.log(this)
+        }
+        const person1 = new Foo('小红', 19)
+        const person2 = new Foo('小白', 18)
+
+        // 4. 原型方法里面, this指向实例.
+```
+
+```js
+ // 1. 箭头函数没有prototype 原型
+       let a = () => {}
+        console.log(a.prototype) // undefined
+
+        // 2. 不能使用new调用箭头函数，也就是箭头函数不能作为构造函数
+        let b = () => {}
+        // let c = new b() // b is not a constructor
+        // console.log(c)
+
+        // 3. 箭头函数没有arguments， 可以利用rest接收剩余参数
+        let d = (first, ...abc) => {
+            console.log(first, abc) // 1, [2, 3, 4]
+        }
+        d(1, 2, 3, 4)
+
+        // 4. 箭头函数本身没有this
+        // 箭头函数的this在定义的时候就确定了，上层作用域中的this
+        // 箭头函数的this指向是固定的，不能改变。
+    
+        let msg = '666' //let声明的变量不挂载到window上
+        let obj = {
+            msg:'xxx',
+            say:function(){
+                console.log('say：', this.msg)
+            },
+            sayHi: () => {
+                // window
+                console.log('sayHi：', this.msg)
+            }
+        }
+        obj.say()  // say: xxx
+        obj.sayHi() // sayHi: undefined '
+```
+
+### 7.2 改变指向的三种方式
+
+#### 7.2.1 fn.call()
+
+1. 改变this的指向
+
+2. 调用函数,函数立即执行 返回执行结果
+
+3. 注意:第一个参数是要让this指向那个对象
+
+   4.后面的紧跟的是参数列表
+
+```js
+ const obj = {
+      msg : 'hallo world'
+    }
+    const b = {
+      demo : 'hahaha'
+    }
+    function fn(x,y){
+      console.log(this)
+      console.log(this.msg)
+      console.log(x + y)
+    }
+    // fn(1,2)
+    fn.call(obj , 1,2) // 改变了this的指向让this指向了obj
+```
+
+```js
+const obj2 = {
+            name:'hw',
+            getName(){
+                console.log(this)  // obj3
+                console.log(this.name) // iPhone
+             }
+        }
+        const obj3 = {
+            name:'iPhone'
+        }
+        obj2.getName.call(obj3) 
+```
+
+#### 7.2.2  fn.apply() 
+
+​    1. 改变this的指向
+
+​    2. 调用函数，立即执行
+
+​    3. 返回值就是函数本身的返回值
+
+```js
+ const obj = {
+            msg:'hello world'
+        }
+
+        function fn(x, y){
+            console.log(this.msg)
+            return x + y
+        }
+
+        // fn.apply(this指向谁,[数组])
+        const res = fn.apply(obj, [1, 2])
+        console.log(res)
+```
+
+#### 7.2.3 fn.bind(obj, 参数列表)
+
+1. 改变this指向
+
+2. 有返回值，返回值就是一个函数，这个函数里面的this就是我们传入的第一个参数
+
+3. bind不是立即执行的， 需要手动调用
+
+```js
+ const fun = fn.bind(obj, 1, 2)
+        // const fun = function fn(x, y){
+        //     console.log(this.msg)
+        //     return x + y
+        // }
+        // 我们用fun去接收了这个函数， 然后手动调用的fun()
+        console.log(fun)
+        const res = fun()
+        console.log(res)
+```
+
+> 总结
+
+​    // call / apply / bind 区别
+
+​    // 1. 都是改变this的指向
+
+​    // 2. call接收的是参数列表 ， apply接收的是数组
+
+​    // 3. call和apply是立即执行， bind返回一个函数，需要手动调用
+
+---
+
+## 八、手写递归深拷贝
+
+```js
+const obj = {
+            name:'雪豹',
+            age:18,
+            like:['smoke','fuck'],
+            say:{
+                people:'我测你们码'
+            }
+        }
+
+        const o = {}
+
+        function deepClone(newObj,oldObj){
+            for(let k in oldObj){
+                if(oldObj[k] instanceof Array){
+                    newObj[k] = []
+                    deepClone(newObj[k],oldObj[k])
+                }
+                else{
+                    newObj[k] = oldObj[k]
+                }
+            }
+        }
+        deepClone(o,obj)
+        console.log(o)
+```
+
